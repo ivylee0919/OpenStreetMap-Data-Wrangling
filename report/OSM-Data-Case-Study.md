@@ -6,7 +6,7 @@
 **Hong Kong, China**
 - https://www.openstreetmap.org/relation/913110
 
-选取的区域是香港的一部分，hong-kong.osm 大小 92.6M。经纬度边界：22.2233, 114.115, 22.3475, 114.275，以下为选定区域示意图：
+选取的区域是香港的一部分，`hong-kong.osm` 大小 92.6M。经纬度边界：22.2233, 114.115, 22.3475, 114.275，以下为选定区域示意图：
 ![下载地图的范围示意](http://upload-images.jianshu.io/upload_images/6306906-7644fc1a45c1c29f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ## 2. 选择区域的原因
@@ -15,13 +15,12 @@
 --------------------------------------
 
 ## 3. 地图数据中的问题
-我将下载后的 hong-kong.osm 通过 make_a_simple.py 代码，转换为一个小型的 sample.osm 文件，对数据进行审查。
+我将下载后的 `hong-kong.osm` 通过 `make_a_simple.py` 代码，转换为一个小型的 `sample.osm` 文件，对数据进行审查。
 
 
 ### 3.1. key 审查
-用到的代码：[tags.py](/code/tags.py)
 
-- 使用 tags.py 审查没有发现问题 key（problemchars 类型），将 other 类型的 key 打印出来发现有一部分是因为有 2 个冒号，除去两个冒号的，其他有：
+- 使用 `tags.py` 审查没有发现问题 key（problemchars 类型），将 other 类型的 key 打印出来发现有一部分是因为有 2 个冒号，除去两个冒号的，其他有：
   - **`naptan:Bearing`**: 在 [NaPTAN Wiki](https://wiki.openstreetmap.org/wiki/NaPTAN/Tag_mappings) 中搜索到相关信息，**`Direction along street in which vehicle is pointing when stopped at stopping point.`** 表示的是：车辆停在这个位置时，车头的朝向方位是什么。
   - **`ref:CBNW`**: 在 [Key:ref Wiki](https://wiki.openstreetmap.org/wiki/Key:ref) 上可以查到，`ref:CBNW` 更通用的写法应该是 `ref:ctb`，可以修正一下，不过对本次查询没有影响，暂时未修改；
   - **`socket:bs1363`**: 在 [charging_station Wiki](https://wiki.openstreetmap.org/wiki/Cs:Tag:amenity%3Dcharging_station) 是充电站正常的 key，表示的是插座的一种类型；
@@ -54,7 +53,7 @@
 - 用分号将这个值分割为一个列表；
 - 对列表中的项进行遍历，每一项创建一个新的 tag，key 为 cuisine，value 为正在遍历的项
 
-以下代码节选自 data.py 主要用来处理多个 cuisine 的情况
+以下代码节选自 `data.py` 主要用来处理多个 `cuisine` 的情况
 
 ```python
 def multi_cuisine_apart(tag_dict):
@@ -71,7 +70,7 @@ def multi_cuisine_apart(tag_dict):
         cuisine_list.append(tag_dict['value'])
     return cuisine_list
 ```
-…… 在 data.py 的 shape_element 函数中，将原来的 tags.append(tag_dict) 改为了以下语句
+…… 在 `data.py` 的 `shape_element` 函数中，将原来的 `tags.append(tag_dict)` 改为了以下语句
 
 ```python
                 if (tag_dict['key'] == 'name') and zh_en_name:    # 如果 key 为 name，并且 zh 和 en 都不为空
@@ -96,7 +95,7 @@ def multi_cuisine_apart(tag_dict):
 
 
 
-以下代码为 data.py 的 find_zh_en_name 函数
+以下代码为 `data.py` 的 `find_zh_en_name` 函数
 ```python
 def find_zh_en_name(elem):
     """
@@ -121,7 +120,7 @@ def find_zh_en_name(elem):
         zh_en_name = zh + " " + en   
     return zh_en_name, has_name
 ```
-……在实现了上述步骤之后，debug 时发现有一些既有 en 又有 zh 名称的 tag，可能没有 name 这个 key，这种情况下，添加了以下代码来处理这个问题，位置在 data.py 下面的 shape_element 函数中，`for child in element:` 之前：
+……在实现了上述步骤之后，debug 时发现有一些既有 en 又有 zh 名称的 tag，可能没有 name 这个 key，这种情况下，添加了以下代码来处理这个问题，位置在 `data.py` 下面的 `shape_element` 函数中，`for child in element:` 之前：
 ```python
     zh_en_name, has_name = find_zh_en_name(element) # 调用函数查看是否有 name，zh 和 en
     if (zh_en_name) and (not has_name):
@@ -143,9 +142,9 @@ def find_zh_en_name(elem):
 ------------------------------------------
 
 ## 5. 用 SQL 查询数据
-将整个 hong-kong.osm 整理为 csv 文件，并导入到 sql 中，代码文件为：
-- data.py —— 将 xml 写入 csv 文件
-- trans_db.ipynb —— 将 csv 文件写入数据库
+将整个 `hong-kong.osm` 整理为 csv 文件，并导入到 sql 中，代码文件为：
+- `data.py` —— 将 xml 写入 csv 文件
+- `trans_db.ipynb` —— 将 csv 文件写入数据库
 
 ### 5.1. 文件大小
 
